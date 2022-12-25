@@ -49,3 +49,15 @@ function App() {
 
 +++ Билд main.js составил 1258 Кб +++
 
+
+3. Добавляем дерево https://www.npmjs.com/package/react-checkbox-tree
+
+npm i --save react-checkbox-tree
+
+import 'react-checkbox-tree/lib/react-checkbox-tree.css';
+import CheckboxTree from 'react-checkbox-tree';
+
+
+
+
+
