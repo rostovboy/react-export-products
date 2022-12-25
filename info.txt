@@ -1,1 +1,51 @@
 1. npx create-react-app react-export-products --template typescript
+
+2. https://fontawesome.com/docs/web/use-with/react/add-icons
+
+npm i --save @fortawesome/fontawesome-svg-core
+npm i --save @fortawesome/react-fontawesome
+npm i --save @fortawesome/free-regular-svg-icons
+npm i --save @fortawesome/free-solid-svg-icons
+
+Вариант поштучного вызова иконок:
+
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faChevronRight, faChevronDown, faPlusSquare, faMinusSquare } from '@fortawesome/free-solid-svg-icons';
+import { faFolder, faFile, faFolderOpen, faCheckSquare, faSquare } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+
+library.add(faCheckSquare, faSquare, faChevronRight, faChevronDown, faPlusSquare, faMinusSquare, faFile, faFolderOpen, faFolder);
+
+function App() {
+  return (
+    <div>
+        <FontAwesomeIcon icon={['far', 'check-square']} size="xl" />
+    </div>
+  );
+}
+
++++ Билд main.js составил 209 Кб +++
+
+
+Вариант вызова сразу всех: 
+
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+
+library.add(fas, far);
+
+function App() {
+  return (
+    <div>
+        <FontAwesomeIcon icon={['far', 'check-square']} size="xl" />
+        <FontAwesomeIcon icon={['fas', 'check-square']} size="xl" />
+    </div>
+  );
+}
+
++++ Билд main.js составил 1258 Кб +++
+
