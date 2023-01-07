@@ -35,7 +35,12 @@ class App extends React.Component {
 
     async componentDidMount() {
         try {
-            const response = await fetch('https://grandfayans.ru/api/categories');
+            const response = await fetch('https://grandfayans.ru/api/categories', {
+                headers: {
+                    Authorization: 'Token 67c5604a-0f50-4ad1-927e-ca70200b03d0',
+                },
+                //mode: 'no-cors',
+            });
             const data = await response.json();
             this.setState({ nodes: data.results });
         } catch (error) {
