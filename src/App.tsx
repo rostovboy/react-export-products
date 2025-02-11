@@ -44,34 +44,6 @@ class App extends React.Component {
     }
 
 
-
-    /* async componentDidMount() {
-        try {
-            const response = await fetch('https://grandfayans.ru/api/categories', {
-                headers: {
-                    Authorization: 'Token 67c5604a-0f50-4ad1-927e-ca70200b03d0',
-                },
-                //mode: 'no-cors',
-            });
-            const data = await response.json()
-            this.setState({ nodes: data.results })
-        } catch (error) {
-            // Handle the error
-        }
-    } 
-    
-    handleSubmit = () => {
-        const { checked } = this.state;
-        fetch('https://cors-anywhere.herokuapp.com/https://grandfayans.ru/api/categories', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Token 67c5604a-0f50-4ad1-927e-ca70200b03d0',
-            },
-            body: JSON.stringify({ checked }),
-        })
-    } */
-
     handleSelectAll = () => {
         const { nodes } = this.state
         console.log(nodes)
@@ -147,9 +119,9 @@ class App extends React.Component {
                             }}
                         />
 
-                        <div>
+                        {/* <div>
                             <button className="btn btn-primary mt-5 mb-5" onClick={this.handleSelectAll}>Выбрать все</button>
-                        </div>
+                        </div> */}
 
                         {result ? (
                             <div>
@@ -172,7 +144,7 @@ class App extends React.Component {
                                 disabled={checked.length === 0}
                                 onClick={this.handleSubmit}
                             >
-                                Экспорт
+                                Скачать
                             </button>
                         )}
 
