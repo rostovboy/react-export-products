@@ -1,6 +1,6 @@
-import React from 'react'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import React from 'react';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import {
     faFolder,
     faFile,
@@ -9,30 +9,31 @@ import {
     faSquare,
     faPlusSquare,
     faMinusSquare
-} from '@fortawesome/free-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import CheckboxTree from 'react-checkbox-tree'
-import 'react-checkbox-tree/lib/react-checkbox-tree.css'
-import { Node } from 'react-checkbox-tree'
-import axios from 'axios'
-//import { nodes } from './data/nodes1'
+} from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import CheckboxTree from 'react-checkbox-tree';
+import 'react-checkbox-tree/lib/react-checkbox-tree.css';
+import { Node } from 'react-checkbox-tree';
+import axios from 'axios';
 
-library.add(faCheckSquare, faSquare, faChevronRight, faChevronDown, faPlusSquare, faMinusSquare, faFile, faFolderOpen, faFolder)
-
+library.add(faCheckSquare, faSquare, faChevronRight, faChevronDown, faPlusSquare, faMinusSquare, faFile, faFolderOpen, faFolder);
 
 interface IState {
-    checked: [],
-    expanded: [],
-    nodes: Node[],
-    result: string,
-    isTreeLoading: boolean,
-    isLinkLoading: boolean
+    checked: string[];
+    expanded: string[];
+    nodes: Node[];
+    result: string;
+    isTreeLoading: boolean;
+    isLinkLoading: boolean;
 }
 
-const apiEndpoint = 'https://cors-anywhere.herokuapp.com/https://grandfayans.ru/api/categories'
-const authorizationToken = 'Token 67c5604a-0f50-4ad1-927e-ca70200b03d0'
+type DownloadType = 'single' | 'separate';
 
-class App extends React.Component {
+//const apiEndpoint = 'https://cors-anywhere.herokuapp.com/https://grandfayans.ru/api/categories';
+const apiEndpoint = 'https://grandfayans.ru/api/categories';
+const authorizationToken = 'Token 67c5604a-0f50-4ad1-927e-ca70200b03d0';
+
+class App extends React.Component<{}, IState> {
 
     state: IState = {
         checked: [],
@@ -41,16 +42,42 @@ class App extends React.Component {
         result: '',
         isTreeLoading: true,
         isLinkLoading: true
-    }
+    };
 
+    // Получить все ID узлов
+    getAllNodeIds = (nodes: Node[]): string[] => {
+        let ids: string[] = [];
+        nodes.forEach(node => {
+            ids.push(node.value);
+            if (node.children) {
+                ids = ids.concat(this.getAllNodeIds(node.children));
+            }
+        });
+        return ids;
+    };
 
-    handleSelectAll = () => {
-        const { nodes } = this.state
-        console.log(nodes)
-        const allNodeIds = nodes.map(node => node.value)
-        console.log(allNodeIds)
-        this.setState({ checked: allNodeIds })
-    }
+    // Проверка, все ли элементы выделены
+    isAllSelected = (): boolean => {
+        const { nodes, checked } = this.state;
+        const allNodeIds = this.getAllNodeIds(nodes);
+
+        // Сравниваем массивы, учитывая порядок элементов
+        return allNodeIds.length === checked.length && allNodeIds.every(id => checked.includes(id));
+    };
+
+    // Обработчик для кнопки "Выделить все / Снять выделение"
+    handleToggleSelectAll = () => {
+        const { nodes } = this.state;
+        const allNodeIds = this.getAllNodeIds(nodes);
+
+        // Если все элементы уже выделены, снимаем выделение
+        if (this.isAllSelected()) {
+            this.setState({ checked: [] });
+        } else {
+            // Иначе выделяем все элементы
+            this.setState({ checked: allNodeIds });
+        }
+    };
 
     async componentDidMount() {
         try {
@@ -58,36 +85,38 @@ class App extends React.Component {
                 headers: {
                     'Authorization': authorizationToken,
                 },
-            })
-            this.setState({ nodes: response.data.results, isTreeLoading: false })
+            });
+            this.setState({ nodes: response.data.results, isTreeLoading: false });
         } catch (error) {
-            // Handle the error
+            // Обработка ошибки
         }
     }
 
-    handleSubmit = async () => {
-        const { checked } = this.state
+    handleSubmit = async (type: DownloadType) => {
+        const { checked } = this.state;
         try {
-            const response = await axios.post(apiEndpoint, { checked }, {
+            const response = await axios.post(apiEndpoint, { "categories": checked, "type": type }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': authorizationToken,
                 },
-            })
-            this.setState({ result: response.data.object, isLinkLoading: false })
+            });
+            this.setState({ result: response.data.object, isLinkLoading: false });
         } catch (error) {
-            // Handle the error
+            // Обработка ошибки
         }
-    }
+    };
 
     clearChecked = () => {
         this.setState({ checked: [], result: '' });
-    }
+    };
 
     render() {
         const { nodes, result, checked, isTreeLoading, isLinkLoading } = this.state;
 
-        console.log(this.state)
+        // Определяем текст кнопки
+        const isAllSelected = this.isAllSelected();
+        const buttonText = isAllSelected ? 'Снять выделение' : 'Выделить все';
 
         return (
             <div>
@@ -97,9 +126,17 @@ class App extends React.Component {
                     </div>
                 ) : (
                     <div>
+                        <div>
+                            <a className="pseudo mb-3" href="#" onClick={(e) => {
+                                    e.preventDefault(); // Предотвращает переход по ссылке
+                                    this.handleToggleSelectAll();
+                                }}>
+                                {buttonText}
+                            </a>
+                        </div>
                         <CheckboxTree
                             nodes={nodes}
-                            checked={this.state.checked}
+                            checked={checked}
                             expanded={this.state.expanded}
                             onCheck={checked => this.setState({ checked })}
                             onExpand={expanded => this.setState({ expanded })}
@@ -119,10 +156,6 @@ class App extends React.Component {
                             }}
                         />
 
-                        {/* <div>
-                            <button className="btn btn-primary mt-5 mb-5" onClick={this.handleSelectAll}>Выбрать все</button>
-                        </div> */}
-
                         {result ? (
                             <div>
                                 {isLinkLoading ? (
@@ -134,25 +167,36 @@ class App extends React.Component {
                                     </div>
                                 ) : (
                                     <div>
-                                        <a className="btn btn-primary mt-5 mb-5" href={result} onClick={this.clearChecked}>Скачать архив</a>
+                                        <a className="btn btn-primary mt-5 mb-5" href={result} onClick={this.clearChecked}>Скачать</a>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <button
-                                className="btn btn-primary mt-5 mb-5"
-                                disabled={checked.length === 0}
-                                onClick={this.handleSubmit}
-                            >
-                                Скачать
-                            </button>
-                        )}
+                            // две кнопки Скачать одним файлом и Скачать раздельными файлами, если выбрана одна категория, то будет просто кнопка Скачать
+                            <div>
+                                <button
+                                    className="btn btn-primary mt-5 mb-5 mr-4"
+                                    disabled={checked.length === 0}
+                                    onClick={() => this.handleSubmit('single')}
+                                >
+                                    Скачать одним Excel-файлом 
+                                </button>
 
+                                <button
+                                    className="btn btn-primary mt-5 mb-5"
+                                    disabled={checked.length === 0}
+                                    onClick={() => this.handleSubmit('separate')}
+                                >
+                                    Скачать архив с раздельными файлами
+                                </button>
+                            </div>
+                            
+                        )}
                     </div>
                 )}
             </div>
-        )
+        );
     }
 }
 
-export default App
+export default App;
